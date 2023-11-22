@@ -1,46 +1,20 @@
-import React, { useEffect, useState } from "react";
-import "./App.css";
-import FadeLoader from "react-spinners/FadeLoader";
-import {
-  BrowserRouter as Router,
-  Route,
-  Link,
-  NavLink,
-  Routes,
-} from "react-router-dom";
-import Home from "./pages/home/Home";
-import Login from "./pages/login/Login";
-import Toast from "./components/toast/Toast";
+import React from "react";
+import Home from "./pages/Home/Home.jsx";
+import Login from "./pages/Login/Login.jsx";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-export default function App() {
-  const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-  }, []);
-
+function App(props) {
   return (
-    <div className="app">
-      {loading ? (
-        <FadeLoader
-          color={"rgb(212, 18, 222)"}
-          loading={loading}
-          size={100}
-          aria-label="Loading Spinner"
-          data-testid="loader"
-        />
-      ) : (
-        <Router>
-          <Toast />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-          </Routes>
-        </Router>
-      )}
-    </div>
+    <>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
+
+export default App;

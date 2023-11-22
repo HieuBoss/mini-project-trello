@@ -1,28 +1,29 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { client } from "../../utils/clientUtils";
+import { apiClient } from "../../services/api.js";
+import { getLocalStorage, setLocalStorage } from "../../utils/localStorage.js";
+import { IDLE, PENDING } from "../../constant/apiStatus.js";
 
 const initialState = {
-  info: {},
-  status: "idle",
+  userInfo: {},
+  error: null,
+  status: IDLE,
+  errorForm: {},
 };
 
 export const authLogin = createAsyncThunk(
   "auth/login",
-  async (params, thunkApi) => {
+  async (requestParams, thunkApi) => {
     try {
-      const response = await client.get(`/api-key?email=${params}`);
-      console.log(response);
-
-      const apiKey = response.data.data.apiKey;
-
+      const response = await apiClient.get("/api-key", requestParams);
+      const apiKey = response.data.apiKey;
       if (apiKey) {
-        localStorage.setItem("apiKey", apiKey);
+        setLocalStorage("apiKey", apiKey);
         return apiKey;
       }
-    } catch (error) {
+    } catch (e) {
       return thunkApi.rejectWithValue({
-        code: error.response.status,
-        message: error.response.data.message,
+        code: e.response.status,
+        message: e.response.data.message,
       });
     }
   }
@@ -31,18 +32,25 @@ export const authLogin = createAsyncThunk(
 export const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    reset: (state) => {
+      state.error = {};
+      state.userInfo = {};
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(authLogin.pending, (state) => {
-        state.status = "pending";
+        state.status = PENDING;
       })
       .addCase(authLogin.fulfilled, (state, action) => {
-        state.info.apiKey = action.payload;
-        state.status = "success";
+        state.status = IDLE;
+        state.userInfo.apiKey = action.payload;
+        state.error = {};
       })
-      .addCase(authLogin.rejected, (state) => {
-        state.status = "error";
+      .addCase(authLogin.rejected, (state, action) => {
+        state.status = IDLE;
+        state.error = action.payload;
       });
   },
 });

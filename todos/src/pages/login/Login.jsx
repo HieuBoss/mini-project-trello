@@ -1,49 +1,70 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useReducer } from "react";
+import { useNavigate } from "react-router-dom";
 import Styles from "./Login.module.scss/";
 import clsx from "clsx";
 import { useDispatch, useSelector } from "react-redux";
-import { authSlice, authLogin } from "../../redux/slice/authSlice";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { authLogin, authSlice } from "../../redux/slice/authSlice.js";
+import { useForm } from "react-hook-form";
+import { PENDING } from "../../constant/apiStatus.js";
+import { loadingSlice } from "../../redux/slice/loadingSlice.js";
+import { customToast } from "../../utils/toastUtil.js";
+import { object, string } from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 
-export default function Login() {
-  const [email, setEmail] = useState("");
+const { turnOn, turnOff } = loadingSlice.actions;
+const { reset: loginReset } = authSlice.actions;
+
+export const signUpFormSchema = object({
+  email: string().email().required(),
+});
+
+function Login({ toggleLoading }) {
   const dispatch = useDispatch();
-  const { status, info } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const input = e.target.value;
-    setEmail(input);
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(signUpFormSchema),
+    criteriaMode: "all",
+  });
+  const { error, status, userInfo } = useSelector((state) => state.auth);
+  useEffect(() => {
+    status === PENDING ? dispatch(turnOn()) : dispatch(turnOff());
+  }, [status]);
 
   useEffect(() => {
-    if (info && info.apiKey) {
-      console.log(info);
-      toast.success("Đăng nhập thành công");
+    if (userInfo && userInfo.apiKey) {
+      customToast("Đăng nhập thành công");
+      dispatch(loginReset());
       navigate("/home");
     }
-  }, [info]);
+  }, [userInfo]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(authLogin(email));
+  const onSubmit = (data) => {
+    dispatch(authLogin(data));
   };
-
   return (
     <>
       <div className={clsx(Styles.form_login)}>
         <div className={clsx(Styles.overlay)}></div>
         <form
+          onSubmit={handleSubmit(onSubmit)}
           className={clsx(Styles.form_login_wrapper)}
-          onSubmit={handleSubmit}
         >
           <input
-            onChange={handleChange}
+            {...register("email")}
             type="text"
-            placeholder="Vui lòng nhập Email..."
+            placeholder="Vui lòng nhập Email"
             className={clsx(Styles.form_login_input)}
           />
+          {errors.email && (
+            <p className={clsx(Styles.form_login_validate)}>
+              {errors.email.message}
+            </p>
+          )}
           <button type="submit" className={clsx(Styles.btn_submit)}>
             Submit
           </button>
@@ -52,3 +73,5 @@ export default function Login() {
     </>
   );
 }
+
+export default Login;

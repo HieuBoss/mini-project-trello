@@ -21,7 +21,6 @@
   flex-direction: column;
   gap: 10px;
   padding: 20px;
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   border-radius: 10px;
   background-color: #ffffff;
 }
@@ -29,9 +28,7 @@
 .btn_submit {
   width: 100%;
   padding: 10px;
-  background-color: rgb(68, 110, 235);
-  color: #ffffff;
-  font-size: 1.2rem;
+  background-color: rgb(189 197 221);
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -45,11 +42,12 @@
   padding: 10px;
   color: #0a36e4;
   font-size: 1.1rem;
+  border: 1px solid #0a36e4;
   border-radius: 5px;
 }
 
 .form_login_input::placeholder {
-  color: #89898a;
+  color: #0a36e4;
 }
 
 .form_login_validate {
