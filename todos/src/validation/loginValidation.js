@@ -1,5 +1,5 @@
 import { object, string } from "yup";
 
 export const signUpFormSchema = object({
-    email: string().email().required(),
+  email: string().email().required(),
 });
